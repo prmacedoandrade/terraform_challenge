@@ -14,12 +14,31 @@ provider "aws" {
   profile = "bia"
 }
 
-resource "aws_instance" "bia-dev" {
-  ami = "ami-0b72821e2f351e396"
-  instance_type = "t3.micro"
-  tags = {
-    ambiente = "dev"
-    Name = "bia-dev"
+resource "aws_security_group" "bia_dev" {
+  name        = "bia-dev-terraform"
+  description = "Bia dev terraform security rule"
+  vpc_id      = "vpc-08fbd41d57c4f621f"
+
+  ingress {
+    description = "free 3001"
+    from_port   = 3001
+    to_port     = 3001
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
+resource "aws_instance" "bia-dev" {
+  ami             = "ami-02f3f602d23f1659d"
+  instance_type   = "t3.micro"
+  vpc_security_group_ids = ["sg-01d998872c2fa5de3"]
+
+  root_block_device {
+    volume_size = 10
+  }
+
+  tags = {
+    ambiente = "dev"
+    Name     = "bia-dev"
+  }
+}
