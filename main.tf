@@ -47,6 +47,6 @@ resource "aws_instance" "bia-dev" {
 
   tags = {
     ambiente = "dev"
-    Name     = "bia-dev"
+    Name     = var.instance_name
   }
 }
