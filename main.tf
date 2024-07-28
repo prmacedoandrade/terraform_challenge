@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.16"
+      version = "~> 5.53"
     }
   }
 
@@ -35,11 +35,36 @@ resource "aws_security_group" "bia_dev" {
 
 }
 
+resource "aws_security_group" "ssh-access" {
+   description = "Allows ssh access"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol = "tcp"
+    cidr_blocks = ["177.181.191.222/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+}
+
 resource "aws_instance" "bia-dev" {
   ami             = "ami-0427090fd1714168b"
   instance_type   = "t3.micro"
-  vpc_security_group_ids = [aws_security_group.bia_dev.id]
+  vpc_security_group_ids = [aws_security_group.bia_dev.id, aws_security_group.ssh-access.id]
   iam_instance_profile = aws_iam_instance_profile.role_acesso_ssm.name
+  
+  subnet_id = local.subnet_zone_b
+  associate_public_ip_address = true
+  #ipv6_address_count = 1
+
+  key_name = "ssh-challenge"
 
   root_block_device {
     volume_size = 10
